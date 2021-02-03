@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bennu.seckill.mapper.SuccessKilledMapper">
+  <resultMap id="BaseResultMap" type="com.bennu.seckill.entity.SuccessKilled">
+    <!--@mbg.generated-->
+    <!--@Table success_killed-->
+    <id column="seckill_id" jdbcType="BIGINT" property="seckillId" />
+    <id column="user_phone" jdbcType="BIGINT" property="userPhone" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="state" jdbcType="TINYINT" property="state" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    seckill_id, user_phone, create_time, `state`
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from success_killed
+    where seckill_id = #{seckillId,jdbcType=BIGINT}
+      and user_phone = #{userPhone,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    <!--@mbg.generated-->
+    delete from success_killed
+    where seckill_id = #{seckillId,jdbcType=BIGINT}
+      and user_phone = #{userPhone,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bennu.seckill.entity.SuccessKilled">
+    <!--@mbg.generated-->
+    insert into success_killed (seckill_id, user_phone, create_time, 
+      `state`)
+    values (#{seckillId,jdbcType=BIGINT}, #{userPhone,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{state,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bennu.seckill.entity.SuccessKilled">
+    <!--@mbg.generated-->
+    insert into success_killed
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="seckillId != null">
+        seckill_id,
+      </if>
+      <if test="userPhone != null">
+        user_phone,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="state != null">
+        `state`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="seckillId != null">
+        #{seckillId,jdbcType=BIGINT},
+      </if>
+      <if test="userPhone != null">
+        #{userPhone,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bennu.seckill.entity.SuccessKilled">
+    <!--@mbg.generated-->
+    update success_killed
+    <set>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null">
+        `state` = #{state,jdbcType=TINYINT},
+      </if>
+    </set>
+    where seckill_id = #{seckillId,jdbcType=BIGINT}
+      and user_phone = #{userPhone,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bennu.seckill.entity.SuccessKilled">
+    <!--@mbg.generated-->
+    update success_killed
+    set create_time = #{createTime,jdbcType=TIMESTAMP},
+      `state` = #{state,jdbcType=TINYINT}
+    where seckill_id = #{seckillId,jdbcType=BIGINT}
+      and user_phone = #{userPhone,jdbcType=BIGINT}
+  </update>
+  <update id="updateBatch" parameterType="java.util.List">
+    <!--@mbg.generated-->
+    update success_killed
+    <trim prefix="set" suffixOverrides=",">
+      <trim prefix="create_time = case" suffix="end,">
+        <foreach collection="list" index="index" item="item">
+          when seckill_id = #{item.seckillId,jdbcType=BIGINT} then #{item.createTime,jdbcType=TIMESTAMP}
+        </foreach>
+      </trim>
+      <trim prefix="`state` = case" suffix="end,">
+        <foreach collection="list" index="index" item="item">
+          when seckill_id = #{item.seckillId,jdbcType=BIGINT} then #{item.state,jdbcType=TINYINT}
+        </foreach>
+      </trim>
+    </trim>
+    where seckill_id in
+    <foreach close=")" collection="list" item="item" open="(" separator=", ">
+      #{item.seckillId,jdbcType=BIGINT}
+    </foreach>
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    <!--@mbg.generated-->
+    insert into success_killed
+    (seckill_id, user_phone, create_time, `state`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.seckillId,jdbcType=BIGINT}, #{item.userPhone,jdbcType=BIGINT}, #{item.createTime,jdbcType=TIMESTAMP}, 
+        #{item.state,jdbcType=TINYINT})
+    </foreach>
+  </insert>
+</mapper>

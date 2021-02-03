@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bennu.seckill.mapper.SeckillMapper">
+    <resultMap id="BaseResultMap" type="com.bennu.seckill.entity.Seckill">
+        <!--@mbg.generated-->
+        <!--@Table seckill-->
+        <id column="seckill_id" jdbcType="BIGINT" property="seckillId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="number" jdbcType="INTEGER" property="number"/>
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        seckill_id, `name`, `number`, start_time, end_time, create_time
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from seckill
+        where seckill_id = #{seckillId,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        <!--@mbg.generated-->
+        delete
+        from seckill
+        where seckill_id = #{seckillId,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="seckill_id" keyProperty="seckillId" parameterType="com.bennu.seckill.entity.Seckill"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into seckill (`name`, `number`, start_time,
+                             end_time, create_time)
+        values (#{name,jdbcType=VARCHAR}, #{number,jdbcType=INTEGER}, #{startTime,jdbcType=TIMESTAMP},
+                #{endTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="seckill_id" keyProperty="seckillId"
+            parameterType="com.bennu.seckill.entity.Seckill" useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into seckill
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="number != null">
+                `number`,
+            </if>
+            <if test="startTime != null">
+                start_time,
+            </if>
+            <if test="endTime != null">
+                end_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="number != null">
+                #{number,jdbcType=INTEGER},
+            </if>
+            <if test="startTime != null">
+                #{startTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="endTime != null">
+                #{endTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bennu.seckill.entity.Seckill">
+        <!--@mbg.generated-->
+        update seckill
+        <set>
+            <if test="name != null">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="number != null">
+                `number` = #{number,jdbcType=INTEGER},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where seckill_id = #{seckillId,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.bennu.seckill.entity.Seckill">
+        <!--@mbg.generated-->
+        update seckill
+        set `name`      = #{name,jdbcType=VARCHAR},
+            `number`    = #{number,jdbcType=INTEGER},
+            start_time  = #{startTime,jdbcType=TIMESTAMP},
+            end_time    = #{endTime,jdbcType=TIMESTAMP},
+            create_time = #{createTime,jdbcType=TIMESTAMP}
+        where seckill_id = #{seckillId,jdbcType=BIGINT}
+    </update>
+    <update id="updateBatch" parameterType="java.util.List">
+        <!--@mbg.generated-->
+        update seckill
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="`name` = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when seckill_id = #{item.seckillId,jdbcType=BIGINT} then #{item.name,jdbcType=VARCHAR}
+                </foreach>
+            </trim>
+            <trim prefix="`number` = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when seckill_id = #{item.seckillId,jdbcType=BIGINT} then #{item.number,jdbcType=INTEGER}
+                </foreach>
+            </trim>
+            <trim prefix="start_time = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when seckill_id = #{item.seckillId,jdbcType=BIGINT} then #{item.startTime,jdbcType=TIMESTAMP}
+                </foreach>
+            </trim>
+            <trim prefix="end_time = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when seckill_id = #{item.seckillId,jdbcType=BIGINT} then #{item.endTime,jdbcType=TIMESTAMP}
+                </foreach>
+            </trim>
+            <trim prefix="create_time = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when seckill_id = #{item.seckillId,jdbcType=BIGINT} then #{item.createTime,jdbcType=TIMESTAMP}
+                </foreach>
+            </trim>
+        </trim>
+        where seckill_id in
+        <foreach close=")" collection="list" item="item" open="(" separator=", ">
+            #{item.seckillId,jdbcType=BIGINT}
+        </foreach>
+    </update>
+    <insert id="batchInsert" keyColumn="seckill_id" keyProperty="seckillId" parameterType="map" useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into seckill
+                (`name`, `number`, start_time, end_time, create_time)
+                values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name,jdbcType=VARCHAR}, #{item.number,jdbcType=INTEGER}, #{item.startTime,jdbcType=TIMESTAMP},
+             #{item.endTime,jdbcType=TIMESTAMP}, #{item.createTime,jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+    <select id="getSeckillList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from seckill
+    </select>
+</mapper>
