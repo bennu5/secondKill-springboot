@@ -18,7 +18,11 @@ import com.github.pagehelper.Page;
 /**
  * 业务接口：站在“使用者”的角度设计接口
  * 三个方面：方法定义粒度，参数，返回类型（return 类型/异常）
- */
+ *
+ * @author bennu5
+ * @version v1.0
+ * @date 2021/3/25
+ **/
 public interface SecondKillService {
     /**
      * 查询所有秒杀记录
@@ -55,12 +59,4 @@ public interface SecondKillService {
      * @throws SeckillCloseException 秒杀关闭异常
      */
     SeckillExecution executeSeckill(long seckillId, long userPhone, String md5) throws SeckillException, RepeatKillException, SeckillCloseException;
-
-    /**
-     * @param seckillId 秒杀Id
-     * @param userPhone 手机号
-     * @param md5       md5值
-     * @return 秒杀结果
-     */
-    SeckillExecution executeSeckillByProcedure(long seckillId, long userPhone, String md5);
 }
