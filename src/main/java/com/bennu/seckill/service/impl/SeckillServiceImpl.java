@@ -1,3 +1,10 @@
+/*
+ * Copyright 1995-2021 bennu5.
+ *
+ * Create date:2021/1/25
+ *
+ * Class name:SeckillServiceImpl
+ */
 package com.bennu.seckill.service.impl;
 
 import com.bennu.seckill.entity.Seckill;
@@ -7,15 +14,10 @@ import com.github.pagehelper.Page;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-/*
- * Copyright 1995-2021 bennu5.
- *
- * Create date:2021/1/25
- *
- * Class name:SeckillServiceImpl
- */
 @Service
 public class SeckillServiceImpl implements SeckillService {
 
@@ -65,6 +67,16 @@ public class SeckillServiceImpl implements SeckillService {
     @Override
     public Page<Seckill> getSeckillList() {
         return seckillMapper.getSeckillList();
+    }
+
+    @Override
+    public int reduceNumber(long seckillId, Date nowTime) {
+        return 0;
+    }
+
+    @Override
+    public void killByProcedure(Map<String, Object> map) {
+
     }
 
 }

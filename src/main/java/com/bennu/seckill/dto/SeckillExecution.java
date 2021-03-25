@@ -13,7 +13,7 @@ import lombok.Data;
  * @date 2021/1/20
  **/
 @Data
-public class SeckillExcution {
+public class SeckillExecution {
 
     private long seckillId;
 
@@ -33,14 +33,14 @@ public class SeckillExcution {
     private SuccessKilled successKilled;
 
 
-    public SeckillExcution(long seckillId, SeckillStatEnum statEnum, SuccessKilled successKilled) {
+    public SeckillExecution(long seckillId, SeckillStatEnum statEnum, SuccessKilled successKilled) {
         this.seckillId = seckillId;
         this.state = statEnum.getState();
         this.stateInfo = statEnum.getStateInfo();
         this.successKilled = successKilled;
     }
 
-    public SeckillExcution(long seckillId, SeckillStatEnum statEnum) {
+    public SeckillExecution(long seckillId, SeckillStatEnum statEnum) {
         this.seckillId = seckillId;
         this.state = statEnum.getState();
         this.stateInfo = statEnum.getStateInfo();

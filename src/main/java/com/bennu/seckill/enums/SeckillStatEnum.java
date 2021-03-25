@@ -8,13 +8,16 @@
 package com.bennu.seckill.enums;
 
 /**
- * 功能描述
+ * 秒杀状态枚举
  *
  * @author bennu5
  * @version v1.0
  * @date 2021/1/20
  **/
 public enum SeckillStatEnum {
+    /**
+     * 秒杀状态
+     */
     SUCCESS(1, "秒杀成功"),
     END(0, "秒杀结束"),
     REPEAT_KILL(-1, "重复秒杀"),

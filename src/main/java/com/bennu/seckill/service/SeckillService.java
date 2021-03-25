@@ -3,7 +3,9 @@ package com.bennu.seckill.service;
 import com.bennu.seckill.entity.Seckill;
 import com.github.pagehelper.Page;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /*
  * Copyright 1995-2021 bennu5.
@@ -37,4 +39,8 @@ public interface SeckillService {
      * @return 秒杀记录
      */
     Page<Seckill> getSeckillList();
+
+    int reduceNumber(long seckillId, Date nowTime);
+
+    void killByProcedure(Map<String, Object> map);
 }

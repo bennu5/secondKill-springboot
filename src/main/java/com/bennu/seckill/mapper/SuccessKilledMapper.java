@@ -1,9 +1,11 @@
 package com.bennu.seckill.mapper;
 
 import com.bennu.seckill.entity.SuccessKilled;
-import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+import java.util.List;
 
 /*
  * Copyright 1995-2021 bennu5.
@@ -16,6 +18,7 @@ import org.apache.ibatis.annotations.Param;
 public interface SuccessKilledMapper {
     /**
      * delete by primary key
+     *
      * @param seckillId primaryKey
      * @return deleteCount
      */
@@ -23,6 +26,7 @@ public interface SuccessKilledMapper {
 
     /**
      * insert record to table
+     *
      * @param record the record
      * @return insert count
      */
@@ -30,6 +34,7 @@ public interface SuccessKilledMapper {
 
     /**
      * insert record to table selective
+     *
      * @param record the record
      * @return insert count
      */
@@ -37,6 +42,7 @@ public interface SuccessKilledMapper {
 
     /**
      * select by primary key
+     *
      * @param seckillId primary key
      * @return object by primary key
      */
@@ -44,6 +50,7 @@ public interface SuccessKilledMapper {
 
     /**
      * update record selective
+     *
      * @param record the updated record
      * @return update count
      */
@@ -51,6 +58,7 @@ public interface SuccessKilledMapper {
 
     /**
      * update record
+     *
      * @param record the updated record
      * @return update count
      */
@@ -59,4 +67,10 @@ public interface SuccessKilledMapper {
     int updateBatch(List<SuccessKilled> list);
 
     int batchInsert(@Param("list") List<SuccessKilled> list);
+
+    int insertSuccessKilled(SuccessKilled successKilled);
+
+    int reduceNumber(@Param("seckillId") long seckillId, @Param("killTime") Date killTime);
+
+    SuccessKilled queryByIdWithSeckill(@Param("seckillId") long seckillId, @Param("userPhone") long userPhone);
 }
