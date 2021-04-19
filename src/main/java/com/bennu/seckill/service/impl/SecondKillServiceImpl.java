@@ -9,23 +9,25 @@ package com.bennu.seckill.service.impl;
 
 import com.bennu.seckill.dto.Exposer;
 import com.bennu.seckill.dto.SeckillExecution;
+import com.bennu.seckill.dto.SeckillResult;
 import com.bennu.seckill.entity.Seckill;
 import com.bennu.seckill.entity.SuccessKilled;
 import com.bennu.seckill.enums.SeckillStatEnum;
 import com.bennu.seckill.exception.RepeatKillException;
 import com.bennu.seckill.exception.SeckillCloseException;
 import com.bennu.seckill.exception.SeckillException;
+import com.bennu.seckill.mq.SecKillSender;
 import com.bennu.seckill.service.RedisService;
 import com.bennu.seckill.service.SeckillService;
 import com.bennu.seckill.service.SecondKillService;
 import com.bennu.seckill.service.SuccessKilledService;
+import com.bennu.seckill.utils.SeckillUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -53,12 +55,17 @@ public class SecondKillServiceImpl implements SecondKillService {
      * Redis Service
      */
     private final RedisService redisService;
+    /**
+     * 秒杀队列发送器
+     */
+    private final SecKillSender secKillSender;
 
     @Autowired
-    public SecondKillServiceImpl(SeckillService seckillService, SuccessKilledService successKilledService, RedisService redisService) {
+    public SecondKillServiceImpl(SeckillService seckillService, SuccessKilledService successKilledService, RedisService redisService, SecKillSender secKillSender) {
         this.seckillService = seckillService;
         this.successKilledService = successKilledService;
         this.redisService = redisService;
+        this.secKillSender = secKillSender;
     }
 
 
@@ -98,7 +105,7 @@ public class SecondKillServiceImpl implements SecondKillService {
         }
 
         // 转换特定字符串,不可逆
-        String md5 = getMd5(seckill.getSeckillId());
+        String md5 = SeckillUtils.getMd5(seckill.getSeckillId());
         return new Exposer(true, md5, seckillId);
     }
 
@@ -108,18 +115,10 @@ public class SecondKillServiceImpl implements SecondKillService {
      * @param seckillId 秒杀ID
      * @return MD5
      */
-    private String getMd5(long seckillId) {
-        String slat = "sdhiondghdSGdhfiads@#%%^DFGdgk";
-        String base = seckillId + "/" + slat;
-        return DigestUtils.md5DigestAsHex(base.getBytes());
-    }
 
     @Override
     @Transactional(rollbackFor = SeckillException.class)
-    public SeckillExecution executeSeckill(long seckillId, long userPhone, String md5) throws SeckillException {
-        if (md5 == null || !md5.equals(getMd5(seckillId))) {
-            throw new SeckillException("seckill data rewrite");
-        }
+    public SeckillExecution executeSeckill(long seckillId, long userPhone) throws SeckillException {
         // 执行秒杀逻辑 + 减库存
         Date nowTime = new Date();
         try {
@@ -146,5 +145,26 @@ public class SecondKillServiceImpl implements SecondKillService {
             // 所有编译期异常转换为运行期异常
             throw new SeckillException("秒杀出错");
         }
+    }
+
+    @Override
+    public void executeSeckill(SuccessKilled successKilled) {
+        SeckillResult<SeckillExecution> result;
+        SeckillExecution seckillExecution;
+        try {
+            seckillExecution = this.executeSeckill(successKilled.getSeckillId(), successKilled.getUserPhone());
+            result = new SeckillResult<>(true, seckillExecution);
+        } catch (RepeatKillException e1) {
+            seckillExecution = new SeckillExecution(successKilled.getSeckillId(), SeckillStatEnum.REPEAT_KILL);
+            result = new SeckillResult<>(true, seckillExecution);
+        } catch (SeckillCloseException e2) {
+            seckillExecution = new SeckillExecution(successKilled.getSeckillId(), SeckillStatEnum.END);
+            result = new SeckillResult<>(true, seckillExecution);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            seckillExecution = new SeckillExecution(successKilled.getSeckillId(), SeckillStatEnum.INNER_ERROR);
+            result = new SeckillResult<>(true, seckillExecution);
+        }
+        secKillSender.sendResult(result);
     }
 }

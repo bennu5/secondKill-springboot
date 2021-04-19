@@ -6,10 +6,11 @@
     <!--后面的依赖都依赖parent，版本由parent内的默认配置决定-->
     <!--parent 没有定义的依赖版本需要自行定义-->
     <parent>
+        <!-- lookup parent from repository -->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.4.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.bennu</groupId>
     <artifactId>seckill</artifactId>
@@ -22,10 +23,6 @@
     </properties>
 
     <dependencies>
-        <!--<dependency>-->
-        <!--<groupId>org.springframework.boot</groupId>-->
-        <!--<artifactId>spring-boot-starter-amqp</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -69,11 +66,16 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.springframework.amqp</groupId>-->
-        <!--<artifactId>spring-rabbit-test</artifactId>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
+        <!--Spring Boot RabbitMQ 依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>

@@ -1,8 +1,11 @@
 spring:
+  # datasource
   datasource:
     url: jdbc:mysql://47.94.157.224:3306/seckill?characterEncoding=utf-8&serverTimezone=GMT%2B8
     username: seckill
     password: seckill_pass
+
+  #redis
   redis:
     host: 47.94.157.224
     database: 0 # Redis 数据库索引（默认为0）
@@ -15,10 +18,15 @@ spring:
         min-idle: 0 # 连接池中的最小空闲连接
     timeout: 0 # 连接超时时间
     port: 6379 # Redis 服务端口
-  jackson:
-    serialization:
-      WRITE_DATES_AS_TIMESTAMPS: false
 
+  # rabbitMQ
+  rabbitmq:
+    host: 82.157.1.224
+    port: 15672
+    username: user
+    password: 231sdksdfs234
+
+# pageHelper
 pagehelper:
   helper-dialect: mysql # 指定数据库
   reasonable: true # 合理化分页参数

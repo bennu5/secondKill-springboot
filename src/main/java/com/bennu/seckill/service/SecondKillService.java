@@ -10,6 +10,7 @@ package com.bennu.seckill.service;
 import com.bennu.seckill.dto.Exposer;
 import com.bennu.seckill.dto.SeckillExecution;
 import com.bennu.seckill.entity.Seckill;
+import com.bennu.seckill.entity.SuccessKilled;
 import com.bennu.seckill.exception.RepeatKillException;
 import com.bennu.seckill.exception.SeckillCloseException;
 import com.bennu.seckill.exception.SeckillException;
@@ -52,11 +53,17 @@ public interface SecondKillService {
      *
      * @param seckillId 秒杀Id
      * @param userPhone 手机号
-     * @param md5       md5值
      * @return 秒杀结果
      * @throws SeckillException      秒杀异常
      * @throws RepeatKillException   重复秒杀异常
      * @throws SeckillCloseException 秒杀关闭异常
      */
-    SeckillExecution executeSeckill(long seckillId, long userPhone, String md5) throws SeckillException, RepeatKillException, SeckillCloseException;
+    SeckillExecution executeSeckill(long seckillId, long userPhone) throws SeckillException, RepeatKillException, SeckillCloseException;
+
+    /**
+     * 执行秒杀操作
+     *
+     * @param successKilled 秒杀请求记录
+     */
+    void executeSeckill(SuccessKilled successKilled);
 }

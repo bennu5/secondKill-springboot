@@ -11,13 +11,15 @@ import com.bennu.seckill.dto.Exposer;
 import com.bennu.seckill.dto.SeckillExecution;
 import com.bennu.seckill.dto.SeckillResult;
 import com.bennu.seckill.entity.Seckill;
+import com.bennu.seckill.entity.SuccessKilled;
 import com.bennu.seckill.enums.SeckillStatEnum;
 import com.bennu.seckill.exception.RepeatKillException;
 import com.bennu.seckill.exception.SeckillCloseException;
+import com.bennu.seckill.mq.SecKillSender;
 import com.bennu.seckill.service.SecondKillService;
+import com.bennu.seckill.utils.SeckillUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,14 +35,32 @@ import java.util.List;
  * @date 2021/3/25
  **/
 @Slf4j
-@Controller
-@RequestMapping("/seckill")
+@RestController
+@RequestMapping(value = "/seckill")
 public class SeckillController {
     private final SecondKillService secondKillService;
+    private final SecKillSender secKillSender;
+
 
     @Autowired
-    public SeckillController(SecondKillService secondKillService) {
+    public SeckillController(SecondKillService secondKillService, SecKillSender secKillSender) {
         this.secondKillService = secondKillService;
+        this.secKillSender = secKillSender;
+    }
+
+    @GetMapping(value = "/execution")
+    public SeckillResult<SeckillExecution> secKillProducer(@RequestParam("secKillId") Long secKillId, @RequestParam("md5") String md5, @RequestParam("phoneNumber") Long phoneNumber) {
+        SeckillExecution seckillExecution;
+        if (md5 == null || !md5.equals(SeckillUtils.getMd5(secKillId))) {
+            seckillExecution = new SeckillExecution(secKillId, SeckillStatEnum.DATA_REWRITE);
+            return new SeckillResult<>(true, seckillExecution);
+        }
+        SuccessKilled successKilled = new SuccessKilled();
+        successKilled.setSeckillId(secKillId);
+        successKilled.setUserPhone(phoneNumber);
+        secKillSender.send(successKilled);
+        seckillExecution = new SeckillExecution(secKillId, SeckillStatEnum.PROCESSING);
+        return new SeckillResult<>(true, seckillExecution);
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -64,9 +84,7 @@ public class SeckillController {
         return "detail";
     }
 
-    @RequestMapping(value = "/{seckillId}/exposer",
-            method = RequestMethod.POST,
-            produces = {"application/json;charset=UTF-8"})
+    @RequestMapping(value = "/{seckillId}/exposer", method = RequestMethod.POST, produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public SeckillResult<Exposer> exposer(@PathVariable Long seckillId) {
         SeckillResult<Exposer> result;
@@ -88,7 +106,7 @@ public class SeckillController {
             return new SeckillResult<>(false, "用户未登录");
         }
         try {
-            seckillExecution = secondKillService.executeSeckill(seckillId, userPhone, md5);
+            seckillExecution = secondKillService.executeSeckill(seckillId, userPhone);
             return new SeckillResult<>(true, seckillExecution);
         } catch (RepeatKillException e1) {
             seckillExecution = new SeckillExecution(seckillId, SeckillStatEnum.REPEAT_KILL);
