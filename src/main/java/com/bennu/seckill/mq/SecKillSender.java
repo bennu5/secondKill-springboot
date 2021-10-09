@@ -11,6 +11,8 @@ import com.bennu.seckill.dto.SeckillExecution;
 import com.bennu.seckill.dto.SeckillResult;
 import com.bennu.seckill.entity.SuccessKilled;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,16 +25,16 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class SecKillSender {
-//    private final AmqpTemplate rabbitTemplate;
+    private final AmqpTemplate rabbitTemplate;
 
-//    @Autowired
-//    public SecKillSender(AmqpTemplate rabbitTemplate) {
-//        this.rabbitTemplate = rabbitTemplate;
-//    }
+    @Autowired
+    public SecKillSender(AmqpTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     public void send(SuccessKilled successKilled) {
-//        log.info("Send msg = {}", successKilled);
-//        rabbitTemplate.convertAndSend("seckill", "", successKilled);
+        log.info("Send msg = {}", successKilled);
+        rabbitTemplate.convertAndSend("seckill", "", successKilled);
     }
 
     public void sendResult(SeckillResult<SeckillExecution> result) {

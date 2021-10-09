@@ -49,4 +49,11 @@ public interface SuccessKilledService {
     int reduceNumber(long seckillId, Date nowTime);
 
     SuccessKilled queryByIdWithSeckill(long seckillId, long userPhone);
+
+    /**
+     * 查询所有秒杀记录
+     * @param seckillId 秒杀商品ID
+     * @return 秒杀记录List
+     */
+    List<SuccessKilled> selectBySeckillId(long seckillId);
 }

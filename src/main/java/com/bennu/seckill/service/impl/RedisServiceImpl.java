@@ -8,11 +8,14 @@
 package com.bennu.seckill.service.impl;
 
 import com.bennu.seckill.entity.Seckill;
+import com.bennu.seckill.entity.SuccessKilled;
 import com.bennu.seckill.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * 从Redis缓存存储和读取秒杀记录
@@ -42,5 +45,15 @@ public class RedisServiceImpl implements RedisService {
     public void putSeckill(Seckill seckill) {
         String key = "seckill:" + seckill.getSeckillId();
         redisTemplate.opsForValue().set(key, seckill);
+    }
+
+    @Override
+    public void putSeckillRecord(String recordKey, SuccessKilled successKilled) {
+        redisTemplate.opsForHash().put(recordKey, successKilled.getSeckillId() + String.valueOf(successKilled.getUserPhone()), successKilled);
+    }
+
+    @Override
+    public void putSeckillRecord(String recordKey, Map<String, SuccessKilled> map) {
+        redisTemplate.opsForHash().putAll(recordKey, map);
     }
 }

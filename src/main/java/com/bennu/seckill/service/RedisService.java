@@ -8,6 +8,9 @@
 package com.bennu.seckill.service;
 
 import com.bennu.seckill.entity.Seckill;
+import com.bennu.seckill.entity.SuccessKilled;
+
+import java.util.Map;
 
 /**
  * 从Redis缓存存储和读取秒杀记录
@@ -31,4 +34,18 @@ public interface RedisService {
      * @param seckill 秒杀对象信息
      */
     void putSeckill(Seckill seckill);
+
+    /**
+     * 向Redis中存储秒杀记录对象信息
+     * @param recordKey 秒杀记录key
+     * @param successKilled 秒杀记录对象
+     */
+    void putSeckillRecord(String recordKey, SuccessKilled successKilled);
+
+    /**
+     * 向Redis中初始化秒杀记录对象信息
+     * @param recordKey 秒杀记录key
+     * @param map 秒杀记录对象信息
+     */
+    void putSeckillRecord(String recordKey, Map<String, SuccessKilled> map);
 }

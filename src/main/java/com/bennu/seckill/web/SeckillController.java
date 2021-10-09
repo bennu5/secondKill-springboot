@@ -49,12 +49,8 @@ public class SeckillController {
     }
 
     @GetMapping(value = "/execution")
-    public SeckillResult<SeckillExecution> secKillProducer(@RequestParam("secKillId") Long secKillId, @RequestParam("md5") String md5, @RequestParam("phoneNumber") Long phoneNumber) {
+    public SeckillResult<SeckillExecution> seckillReqReceiver(@RequestParam("secKillId") Long secKillId, @RequestParam("phoneNumber") Long phoneNumber) {
         SeckillExecution seckillExecution;
-        if (md5 == null || !md5.equals(SeckillUtils.getMd5(secKillId))) {
-            seckillExecution = new SeckillExecution(secKillId, SeckillStatEnum.DATA_REWRITE);
-            return new SeckillResult<>(true, seckillExecution);
-        }
         SuccessKilled successKilled = new SuccessKilled();
         successKilled.setSeckillId(secKillId);
         successKilled.setUserPhone(phoneNumber);

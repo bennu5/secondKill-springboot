@@ -32,6 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 功能描述
@@ -166,5 +169,68 @@ public class SecondKillServiceImpl implements SecondKillService {
             result = new SeckillResult<>(true, seckillExecution);
         }
         secKillSender.sendResult(result);
+    }
+
+    /**
+     * 通过Redis执行秒杀操作
+     *
+     * @param seckillId 秒杀Id
+     * @param userPhone 手机号
+     * @return 秒杀结果
+     * @throws SeckillException      秒杀异常
+     * @throws RepeatKillException   重复秒杀异常
+     * @throws SeckillCloseException 秒杀关闭异常
+     */
+    private SeckillExecution executeSeckillByRedis(long seckillId, long userPhone) throws SeckillException, RepeatKillException, SeckillCloseException {
+        // Redis 处理，通过锁机制进行并发控制
+
+        // 查询缓存，看是否有秒杀记录，
+        boolean haveSeckillRecord = checkRecord(seckillId, userPhone);
+        // 如果有则直接拒绝，
+        if (haveSeckillRecord) {
+            return new SeckillExecution(seckillId, SeckillStatEnum.REPEAT_KILL);
+        }
+        // 如果无则进行秒杀操作
+        SuccessKilled successKilled = new SuccessKilled();
+        successKilled.setSeckillId(seckillId);
+        successKilled.setUserPhone(userPhone);
+        // 先聪Redis中获取记录
+        Seckill seckill = redisService.getSeckill(seckillId);
+        if (seckill == null) {
+            // 如果无则访问数据库
+            seckill = seckillService.selectByPrimaryKey(seckillId);
+        }
+        // 如果数据库无记录，或者记录库存小于等于0，则返回秒杀结束，存储秒杀失败记录（Redis）
+        if (seckill == null || seckill.getNumber() <= 0) {
+            successKilled.setState(SeckillStatEnum.END.getState());
+            redisService.putSeckillRecord("seckillRecord" + seckillId, successKilled);
+            return new SeckillExecution(seckillId, SeckillStatEnum.END, successKilled);
+        } else {
+            // 否则更新记录，存储秒杀成功记录(Redis+数据库)
+            successKilled.setState(SeckillStatEnum.SUCCESS.getState());
+            seckill.setNumber(seckill.getNumber() - 1);
+            redisService.putSeckill(seckill);
+            redisService.putSeckillRecord("seckillRecord" + seckillId, successKilled);
+            successKilledService.insertSuccessKilled(seckillId, userPhone);
+            return new SeckillExecution(seckillId, SeckillStatEnum.SUCCESS, successKilled);
+        }
+    }
+
+    private boolean checkRecord(long seckillId, long userPhone) {
+        String recordKey = "seckillRecord" + seckillId;
+        // 首先判断Redis中是否存在秒杀记录
+        boolean recordNotExist = false;
+
+        // 如果没有，则从数据库中获取并存入Redis
+        if (recordNotExist) {
+            List<SuccessKilled> list = successKilledService.selectBySeckillId(seckillId);
+            Map<String, SuccessKilled> map = new HashMap<>();
+            for (SuccessKilled successKilled : list) {
+                map.put(successKilled.getSeckillId() + String.valueOf(successKilled.getUserPhone()), successKilled);
+            }
+            redisService.putSeckillRecord(recordKey, map);
+        }
+        // 从Redis的Hash结构的记录中判断秒杀记录是否存在
+        return false;
     }
 }
