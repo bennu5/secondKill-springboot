@@ -84,4 +84,19 @@ public class SuccessKilledServiceImpl implements SuccessKilledService {
         return successKilledMapper.queryByIdWithSeckill(seckillId, userPhone);
     }
 
+    @Override
+    public List<SuccessKilled> selectBySeckillId(long seckillId) {
+        return null;
+    }
+
+    @Override
+    public void saveSuccessKilledRecord(long seckillId, long userPhone, int state) {
+        SuccessKilled killed = new SuccessKilled();
+        killed.setSeckillId(seckillId);
+        killed.setUserPhone(userPhone);
+        killed.setState(state);
+        killed.setCreateTime(LocalDateTime.now());
+        successKilledMapper.insert(killed);
+    }
+
 }

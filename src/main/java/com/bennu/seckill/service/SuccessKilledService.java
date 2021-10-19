@@ -51,9 +51,11 @@ public interface SuccessKilledService {
     SuccessKilled queryByIdWithSeckill(long seckillId, long userPhone);
 
     /**
-     * 查询所有秒杀记录
+     * 查询最近的秒杀记录
      * @param seckillId 秒杀商品ID
      * @return 秒杀记录List
      */
     List<SuccessKilled> selectBySeckillId(long seckillId);
+
+    void saveSuccessKilledRecord(long seckillId, long userPhone, int state);
 }

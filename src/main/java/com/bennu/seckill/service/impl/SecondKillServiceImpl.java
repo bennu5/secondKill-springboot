@@ -174,6 +174,11 @@ public class SecondKillServiceImpl implements SecondKillService {
     /**
      * 通过Redis执行秒杀操作
      *
+     * 整体逻辑
+     * （生产者）Web 接到请求后将请求放入RabbitMQ,响应并结束
+     * （消费者）从Rabbit MQ 接收到请求后，根据商品ID和用户ID（手机号）查询最近（24小时）内的记录里是否有响应记录
+     *  如果有，直接失败；如果无进行处理，存储成功或者失败的记录
+     *  问题：如果第一次因为系统问题导致失败，会导致后面一直失败，可以根据交易的具体状态和失败原因进行判断
      * @param seckillId 秒杀Id
      * @param userPhone 手机号
      * @return 秒杀结果
@@ -194,7 +199,11 @@ public class SecondKillServiceImpl implements SecondKillService {
         SuccessKilled successKilled = new SuccessKilled();
         successKilled.setSeckillId(seckillId);
         successKilled.setUserPhone(userPhone);
-        // 先聪Redis中获取记录
+
+        SeckillExecution seckillExecution;
+
+        // ---锁开始位置
+        // 先从Redis中获取记录
         Seckill seckill = redisService.getSeckill(seckillId);
         if (seckill == null) {
             // 如果无则访问数据库
@@ -203,17 +212,21 @@ public class SecondKillServiceImpl implements SecondKillService {
         // 如果数据库无记录，或者记录库存小于等于0，则返回秒杀结束，存储秒杀失败记录（Redis）
         if (seckill == null || seckill.getNumber() <= 0) {
             successKilled.setState(SeckillStatEnum.END.getState());
-            redisService.putSeckillRecord("seckillRecord" + seckillId, successKilled);
-            return new SeckillExecution(seckillId, SeckillStatEnum.END, successKilled);
+            seckillExecution = new SeckillExecution(seckillId, SeckillStatEnum.END, successKilled);
         } else {
-            // 否则更新记录，存储秒杀成功记录(Redis+数据库)
+            // 否则更新商品信息
             successKilled.setState(SeckillStatEnum.SUCCESS.getState());
             seckill.setNumber(seckill.getNumber() - 1);
             redisService.putSeckill(seckill);
-            redisService.putSeckillRecord("seckillRecord" + seckillId, successKilled);
-            successKilledService.insertSuccessKilled(seckillId, userPhone);
-            return new SeckillExecution(seckillId, SeckillStatEnum.SUCCESS, successKilled);
+            seckillExecution =  new SeckillExecution(seckillId, SeckillStatEnum.SUCCESS, successKilled);
         }
+        // ---锁结束位置
+
+        // 存储秒杀记录(Redis+数据库)
+        redisService.putSeckillRecord("seckillRecord" + seckillId, successKilled);
+        successKilledService.saveSuccessKilledRecord(seckillId, userPhone, seckillExecution.getState());
+        return seckillExecution;
+
     }
 
     private boolean checkRecord(long seckillId, long userPhone) {
