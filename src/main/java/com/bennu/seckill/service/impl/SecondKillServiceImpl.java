@@ -35,6 +35,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 功能描述
@@ -62,6 +64,8 @@ public class SecondKillServiceImpl implements SecondKillService {
      * 秒杀队列发送器
      */
     private final SecKillSender secKillSender;
+
+    private final Lock lock = new ReentrantLock();
 
     @Autowired
     public SecondKillServiceImpl(SeckillService seckillService, SuccessKilledService successKilledService, RedisService redisService, SecKillSender secKillSender) {
@@ -203,23 +207,32 @@ public class SecondKillServiceImpl implements SecondKillService {
         SeckillExecution seckillExecution;
 
         // ---锁开始位置
-        // 先从Redis中获取记录
-        Seckill seckill = redisService.getSeckill(seckillId);
-        if (seckill == null) {
-            // 如果无则访问数据库
-            seckill = seckillService.selectByPrimaryKey(seckillId);
+        lock.lock();
+        try {
+            // 先从Redis中获取记录
+            Seckill seckill = redisService.getSeckill(seckillId);
+            if (seckill == null) {
+                // 如果无则访问数据库
+                seckill = seckillService.selectByPrimaryKey(seckillId);
+            }
+            // 如果数据库无记录，或者记录库存小于等于0，则返回秒杀结束，存储秒杀失败记录（Redis）
+            if (seckill == null || seckill.getNumber() <= 0) {
+                successKilled.setState(SeckillStatEnum.END.getState());
+                seckillExecution = new SeckillExecution(seckillId, SeckillStatEnum.END, successKilled);
+            } else {
+                // 否则更新商品信息
+                successKilled.setState(SeckillStatEnum.SUCCESS.getState());
+                seckill.setNumber(seckill.getNumber() - 1);
+                redisService.putSeckill(seckill);
+                seckillExecution = new SeckillExecution(seckillId, SeckillStatEnum.SUCCESS, successKilled);
+            }
+        } catch (Exception e) {
+            seckillExecution = new SeckillExecution(seckillId, SeckillStatEnum.INNER_ERROR, successKilled);
+            log.error("executeSeckillByRedis seckill error", e);
+        } finally {
+            lock.unlock();
         }
-        // 如果数据库无记录，或者记录库存小于等于0，则返回秒杀结束，存储秒杀失败记录（Redis）
-        if (seckill == null || seckill.getNumber() <= 0) {
-            successKilled.setState(SeckillStatEnum.END.getState());
-            seckillExecution = new SeckillExecution(seckillId, SeckillStatEnum.END, successKilled);
-        } else {
-            // 否则更新商品信息
-            successKilled.setState(SeckillStatEnum.SUCCESS.getState());
-            seckill.setNumber(seckill.getNumber() - 1);
-            redisService.putSeckill(seckill);
-            seckillExecution =  new SeckillExecution(seckillId, SeckillStatEnum.SUCCESS, successKilled);
-        }
+
         // ---锁结束位置
 
         // 存储秒杀记录(Redis+数据库)
@@ -230,20 +243,19 @@ public class SecondKillServiceImpl implements SecondKillService {
     }
 
     private boolean checkRecord(long seckillId, long userPhone) {
-        String recordKey = "seckillRecord" + seckillId;
+        String recordKey = "seckillRecord";
         // 首先判断Redis中是否存在秒杀记录
-        boolean recordNotExist = false;
-
+        Boolean recordNotExist = redisService.checkKey(recordKey);
         // 如果没有，则从数据库中获取并存入Redis
         if (recordNotExist) {
-            List<SuccessKilled> list = successKilledService.selectBySeckillId(seckillId);
+            List<SuccessKilled> list = successKilledService.getAllSuccessKilledRecord();
             Map<String, SuccessKilled> map = new HashMap<>();
             for (SuccessKilled successKilled : list) {
-                map.put(successKilled.getSeckillId() + String.valueOf(successKilled.getUserPhone()), successKilled);
+                map.put(successKilled.getSeckillId() + ":" + successKilled.getUserPhone(), successKilled);
             }
             redisService.putSeckillRecord(recordKey, map);
         }
         // 从Redis的Hash结构的记录中判断秒杀记录是否存在
-        return false;
+        return redisService.checkRecord(recordKey, seckillId + ":" + userPhone);
     }
 }

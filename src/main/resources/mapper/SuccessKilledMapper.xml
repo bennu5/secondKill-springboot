@@ -154,4 +154,9 @@
         where sk.seckill_id = #{seckillId}
           and sk.user_phone = #{userPhone}
     </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from success_kille
+    </select>
 </mapper>
