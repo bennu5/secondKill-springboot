@@ -151,7 +151,7 @@ public class SecondKillServiceImpl implements SecondKillService {
     }
 
     @Override
-    public void executeSeckill(SuccessKilled successKilled) {
+    public SeckillResult<SeckillExecution> executeSeckill(SuccessKilled successKilled) {
         SeckillResult<SeckillExecution> result;
         SeckillExecution seckillExecution;
         try {
@@ -169,6 +169,7 @@ public class SecondKillServiceImpl implements SecondKillService {
             result = new SeckillResult<>(true, seckillExecution);
         }
         secKillSender.sendResult(result);
+        return result;
     }
 
     /**

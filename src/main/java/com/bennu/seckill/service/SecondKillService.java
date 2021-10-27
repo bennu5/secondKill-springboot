@@ -9,6 +9,7 @@ package com.bennu.seckill.service;
 
 import com.bennu.seckill.dto.Exposer;
 import com.bennu.seckill.dto.SeckillExecution;
+import com.bennu.seckill.dto.SeckillResult;
 import com.bennu.seckill.entity.Seckill;
 import com.bennu.seckill.entity.SuccessKilled;
 import com.bennu.seckill.exception.RepeatKillException;
@@ -65,5 +66,5 @@ public interface SecondKillService {
      *
      * @param successKilled 秒杀请求记录
      */
-    void executeSeckill(SuccessKilled successKilled);
+    SeckillResult<SeckillExecution> executeSeckill(SuccessKilled successKilled);
 }

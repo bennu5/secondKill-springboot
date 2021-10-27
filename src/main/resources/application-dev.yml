@@ -25,6 +25,11 @@ spring:
     port: 5672
     username: user
     password: 231sdksdfs234
+    listener:
+      direct:
+        acknowledge-mode: manual
+      simple:
+        acknowledge-mode: manual
 
 # pageHelper
 pagehelper:
