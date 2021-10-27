@@ -9,6 +9,7 @@ package com.bennu.seckill.service;
 
 import com.bennu.seckill.entity.SuccessKilled;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -50,10 +51,11 @@ public interface SuccessKilledService {
 
     SuccessKilled queryByIdWithSeckill(long seckillId, long userPhone);
 
+    void saveSuccessKilledRecord(long seckillId, long userPhone, int state);
+
     /**
-     * 查询所有秒杀记录
-     * @param seckillId 秒杀商品ID
-     * @return 秒杀记录List
+     * 查询所有的秒杀记录
+     * @return 所有的秒杀记录
      */
-    List<SuccessKilled> selectBySeckillId(long seckillId);
+    List<SuccessKilled> getAllSuccessKilledRecord();
 }

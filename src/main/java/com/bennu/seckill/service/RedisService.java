@@ -48,4 +48,8 @@ public interface RedisService {
      * @param map 秒杀记录对象信息
      */
     void putSeckillRecord(String recordKey, Map<String, SuccessKilled> map);
+
+    Boolean checkKey(String recordKey);
+
+    boolean checkRecord(String recordKey, String HashKey);
 }

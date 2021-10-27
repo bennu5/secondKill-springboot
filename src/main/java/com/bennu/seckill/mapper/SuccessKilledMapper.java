@@ -73,4 +73,10 @@ public interface SuccessKilledMapper {
     int reduceNumber(@Param("seckillId") long seckillId, @Param("killTime") Date killTime);
 
     SuccessKilled queryByIdWithSeckill(@Param("seckillId") long seckillId, @Param("userPhone") long userPhone);
+
+    /**
+     * 查询所有的秒杀记录
+     * @return 秒杀记录
+     */
+    List<SuccessKilled> selectAll();
 }

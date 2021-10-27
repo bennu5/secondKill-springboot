@@ -56,4 +56,14 @@ public class RedisServiceImpl implements RedisService {
     public void putSeckillRecord(String recordKey, Map<String, SuccessKilled> map) {
         redisTemplate.opsForHash().putAll(recordKey, map);
     }
+
+    @Override
+    public Boolean checkKey(String recordKey) {
+        return redisTemplate.hasKey(recordKey);
+    }
+
+    @Override
+    public boolean checkRecord(String recordKey, String hashKey) {
+        return redisTemplate.opsForHash().hasKey(recordKey, hashKey);
+    }
 }
