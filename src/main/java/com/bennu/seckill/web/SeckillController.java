@@ -17,7 +17,6 @@ import com.bennu.seckill.exception.RepeatKillException;
 import com.bennu.seckill.exception.SeckillCloseException;
 import com.bennu.seckill.mq.SecKillSender;
 import com.bennu.seckill.service.SecondKillService;
-import com.bennu.seckill.utils.SeckillUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;

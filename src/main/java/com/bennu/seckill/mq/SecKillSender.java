@@ -11,7 +11,7 @@ import com.bennu.seckill.dto.SeckillExecution;
 import com.bennu.seckill.dto.SeckillResult;
 import com.bennu.seckill.entity.SuccessKilled;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,15 +25,34 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class SecKillSender {
-    private final AmqpTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
-    public SecKillSender(AmqpTemplate rabbitTemplate) {
+    public SecKillSender(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
     public void send(SuccessKilled successKilled) {
         log.info("Send msg = {}", successKilled);
+
+        // 发送确认修改
+        /*
+         * rabbitmq 整个消息投递的路径为：
+         * producer->rabbitmq broker cluster->exchange->queue->consumer
+         * message 从 producer 到 rabbitmq broker cluster 则会返回一个 confirmCallback
+         * message 从 exchange->queue 投递失败则会返回一个 returnCallback 。
+         * 利用这两个 callback 控制消息的最终一致性和部分纠错能力
+         */
+        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+            if (!ack) {
+                assert correlationData != null;
+                log.error("Send seckill message error id = {}", correlationData.getId());
+            }
+        });
+
+        rabbitTemplate.setReturnsCallback(returnedMessage -> log.error("Return message = {}", returnedMessage));
+
+
         rabbitTemplate.convertAndSend("seckill", "", successKilled);
     }
 

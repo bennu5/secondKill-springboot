@@ -27,9 +27,13 @@ spring:
     password: 231sdksdfs234
     listener:
       direct:
-        acknowledge-mode: manual
+        acknowledge-mode: manual  # 消费端手工确认(重发需要设置消息重试次数)
       simple:
         acknowledge-mode: manual
+    publisher-confirm-type: simple # none simple
+    publisher-returns: true # 消息投递成功后触发回掉
+    template:
+      mandatory: true # 消息投递无法路由到某个Queue后返回
 
 # pageHelper
 pagehelper:

@@ -17,6 +17,7 @@ import com.bennu.seckill.service.SecondKillService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -51,6 +52,7 @@ public class SecKillReceiver {
 //    }
 
     @RabbitListener(queues = Constant.QUEUE_SEC_KILL)
+    @RabbitHandler
     public void processMessageFromSeckillQueue(String content, Message message, Channel channel) {
         log.info("queue {} received registration message: {}", Constant.QUEUE_SEC_KILL, content);
         RabbitMqAction action = RabbitMqAction.ACCATP;
